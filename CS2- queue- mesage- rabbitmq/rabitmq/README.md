@@ -70,3 +70,18 @@ TCP 0.0.0.0:3000 0.0.0.0:0 LISTENING 3760
 TCP [::]:3000 [::]:0 LISTENING 3760
 
 C:\Users\Hello>taskkill /PID 3760 /F
+
+# Docker và Nginx để triển khai hệ thống của bạn theo kiến trúc Load Balancing. Cách làm này rất hiệu quả vì Docker giúp đóng gói và quản lý các container dễ dàng, trong khi Nginx đóng vai trò như một Reverse Proxy hỗ trợ cân bằng tải.
+
+#Build và chạy Docker Compose:
+docker-compose down
+
+PS F:\ktpm\INT3105-55-CS2\CS2- queue- mesage- rabbitmq\rabitmq> docker-compose up --build
+
+# Kiểm tra hệ thống
+
+Truy cập RabbitMQ Management UI tại http://localhost:15672 (user: guest, pass: guest).
+Gửi yêu cầu qua Nginx:
+http://localhost:8080/ocr -> OCR worker.
+http://localhost:8080/pdf -> PDF worker.
+http://localhost:8080/translate -> Translate worker.

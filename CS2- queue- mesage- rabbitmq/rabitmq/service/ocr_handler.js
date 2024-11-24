@@ -6,7 +6,9 @@ const nextQueue = 'translate_queue';
 
 const connectAndConsume = async () => {
   try {
-    const connection = await amqp.connect('amqp://localhost');
+    // const connection = await amqp.connect('amqp://localhost');
+    const connection = await amqp.connect('amqp://guest:guest@rabbitmq');
+
     const channel = await connection.createChannel();
     await channel.assertQueue(queueName, { durable: true });
 

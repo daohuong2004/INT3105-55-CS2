@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"  # Port RabbitMQ
+      - "15672:15672" # RabbitMQ Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  ocr_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["node", "service/orc_handler.js"] # Chạy file orc_handler.js
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - rabbitmq
+    restart: always  # Tự động restart nếu bị lỗi
+
+  pdf_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["node", "service/pdf_handler.js"] # Chạy file pdf_handler.js
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - rabbitmq
+    restart: always
+
+  translate_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["node", "service/translate_handle.js"] # Chạy file translate_handle.js
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - rabbitmq
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "8080:80" # Expose Nginx on port 8080
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf # Mount nginx.conf vào container
+      - ./frontend:/usr/share/nginx/html 
+    depends_on:
+      - ocr_worker
+      - pdf_worker
+      - translate_worker
+    restart: always
