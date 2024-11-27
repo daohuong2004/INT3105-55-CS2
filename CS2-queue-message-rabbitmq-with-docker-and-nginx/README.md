@@ -1,50 +1,96 @@
-# CASE STUDY 2
-Dưới đây là một chương trình có nhiệm vụ chuyển file ảnh tiếng Anh sang một file `pdf` tiếng Việt. Các bước xử lý lần lượt bao gồm: chuyển đổi ảnh sang text, dịch tiếng Anh sang tiếng Việt, chuyển đổi nội dung text thành file `pdf`. Chương trình chính chỉ demo các tính năng này tuần tự.
+# CASE STUDY 2: Translate Vietnamese PDF file
 
-## Hướng dẫn cài đặt
-Yêu cầu cài đặt trước [tesseract](https://tesseract-ocr.github.io/tessdoc/Installation.html) trên hệ điều hành của bạn. 
+Dưới đây là một chương trình có nhiệm vụ chuyển file ảnh tiếng Anh sang một file `pdf` tiếng Việt. Các bước xử lý lần lượt bao gồm: chuyển đổi ảnh sang text, dịch tiếng Anh sang tiếng Việt, chuyển đổi nội dung text thành file `pdf`.
 
-```sh
-# Cài đặt các gói liên quan
-$ npm install
-# Tạo folder cho output
-$ mkdir output
-# Khởi chạy ứng dụng demo
-$ npm start
-```
+1. **Image to Text** :
 
-## Mô Tả
-| File | Chức năng |
-|--|:--|
-| utils/ocr.js | Chuyển đổi ảnh sang text |
-| utils/translate.js | Dịch tiếng Anh sang tiếng Việt |
-| utils/pdf.js | Chuyển đổi text sang PDF |
+   - **Step 1**: Clients upload image files to the system
+   - **Step 2**: Server feed the images to the "Pipe"(RabbitMQ).
+   - **Step 3**: RabbitMQ send the images to the "Filter"(Tesseract) for convert images to text.
+   - **Step 4**: Tesseract send the text back to RabbitMQ.
 
-## Yêu cầu
- - Hoàn thiện chương trình sử dụng `express.js` cho phép upload một file ảnh và trả về một file `pdf` tương ứng
- - Sử dụng `Pipes and Filters pattern` và `message queue` để hoàn thiện chương trình trên.
+2. **Text Translation**:
 
-## Cài đặt
-```sh
-# Khởi chạy rabbitmq server
-docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4.0-management
+   - **Step 5**: RabbitMQ send the text to the "Filter"(Google Translate API)
+   - **Step 6**: Google Translate API send the translated text back to RabbitMQ.
 
-# Khởi chạy app server
-npm run dev
+3. **Text to PDF**:
 
-# Khởi chạy các consumer
-node service/ocr_handler.js
-node service/translate_handler.js
-node service/pdf_handler.js
-```
+   - **Step 7**: RabbitMQ send the translated text to the "Filter"(PDFKit)
+   - **Step 8**: PDFKit create PDF file then return to clients
 
-## Monitor
 ```bash
-# Bật monitor plugin 
-docker exec -it rabbitmq sh
-rabbitmq-plugins enable rabbitmq_management
-
-# Truy cập vào port 15672 
-username: guest
-password: guest
+cd backend
 ```
+
+#### Step 1: Create docker network
+
+```bash
+docker network create app_network
+```
+
+#### Step 2: Run RabbitMQ container
+
+```bash
+docker compose up
+```
+
+You can check RabbitMQ Management is running by visiting http://localhost:15672 in your browser.
+Check the current container status by using the following command:
+
+```bash
+docker ps -a
+```
+
+And if you want to stop the container of rabbitmq and delete the container, run:
+
+```bash
+docker compose down
+```
+
+#### Step 3: Run Nginx container(optional)
+
+If you want to test when the system want to scale up and to duplicate 3 instances of it.
+And check how the load balancer redirect requests of users between them.
+Firstly, deploying 3 instances of the server using docker. In the root folder, run:
+
+```bash
+docker compose up
+```
+
+Then, navigating nginx container directory and run the following command to start Nginx container by using this command:
+
+```bash
+docker compose up
+```
+
+Now you can check the whole system is running by visiting http://localhost in your browser.
+
+#### Step 4: Run backend in dev mode
+
+```bash
+npm run dev
+```
+
+(backend run on port 3005)
+
+#### Prerequisites(Frontend)
+
+- npm
+- Node.js
+
+#### Installation Steps
+
+**Firstly, navigate to frontend folder**
+
+```bash
+cd frontend
+```
+
+#### Then, Run frontend in dev mode
+
+```bash
+npm run dev
+```
+
+(frontend run on port 3000)
