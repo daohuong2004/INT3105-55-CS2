@@ -39,17 +39,13 @@ In addition, we also use **Nginx** as a tool to implement the load balancing and
     - **Step 8**: PDFKit create PDF file then return to clients
 
 ### Installation
-#### Prerequisites(Backend)
+#### Prerequisites
 
  - npm
  - Node.js
  - Tesseract
  - Docker
-#### Installation Steps
-**Firstly, navigate to backend folder**
-```bash
-cd backend
-```
+
 #### Step 1: Create docker network
 Before starting the system, you need to create Docker network to allow all parts of the system can communicate with each oather.
 ```bash
@@ -81,23 +77,3 @@ Then, navigating nginx container directory and run the following command to star
 docker compose up
 ```
 Now you can check the whole system is running by visiting http://localhost in your browser.
-#### Step 4: Run backend in dev mode
-```bash
-npm run dev
-```
-(backend run on port 3005)
-
-#### Prerequisites(Frontend)
-
- - npm
- - Node.js
-#### Installation Steps
-**Firstly, navigate to frontend folder**
-```bash
-cd frontend
-```
-#### Then, Run frontend in dev mode
-```bash
-npm run dev
-```
-(frontend run on port 3000)
